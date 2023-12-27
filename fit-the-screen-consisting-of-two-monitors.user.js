@@ -15,30 +15,29 @@
 (function () {
   "use strict";
 
-  let short_parents = new Set();
-  function get_short_parents(elem) {
-    if (elem.offsetWidth == 0 || elem.offsetHeight == 0) {
-      return;
-    }
+  // all non-empty elements' parents
+  let parents = new Set();
+  function get_parents(elem) {
+    // skip empty elements
+    if (elem.offsetWidth || elem.offsetHeight == 0) return;
     if (elem.offsetWidth < window.innerWidth) {
-      short_parents.add(elem.parentElement);
+      parents.add(elem.parentElement);
       return;
     }
-    Array.from(elem.children).forEach(function (elem) {
-      get_short_parents(elem);
-    });
+    for (const child of elem.children) get_parents(child);
   }
   let body = document.getElementsByTagName("body")[0];
-  get_short_parents(body);
+  get_parents(body);
 
-  let short_elements = new Set();
-  short_parents.forEach(function (elem) {
+  let elements = new Set();
+  for (const parent of parents) {
     let min_offsetLeft = window.innerWidth;
+
     let short_element = null;
-    Array.from(elem.children).forEach(function (elem) {
+    for (const elem of parent.children) {
+      // skip empty elements
+      if (elem.offsetWidth || elem.offsetHeight == 0) continue;
       if (
-        elem.offsetHeight > 0 &&
-        elem.offsetWidth > 0 &&
         elem.offsetLeft > window.innerWidth / 4 &&
         elem.offsetWidth < (2 * window.innerWidth) / 3 &&
         min_offsetLeft > elem.offsetLeft
@@ -46,17 +45,18 @@
         min_offsetLeft = elem.offsetLeft;
         short_element = elem;
       }
-    });
-    if (short_element != null) {
-      short_elements.add(short_element);
     }
-  });
 
-  short_elements.forEach(function (elem) {
+    if (short_element != null) {
+      elements.add(short_element);
+    }
+  }
+
+  for (const elem of elements) {
     let default_left = "5rem";
     if (elem.offsetWidth < window.innerWidth / 4) {
       default_left = "10rem";
     }
     elem.style.marginLeft = default_left;
-  });
+  }
 })();
