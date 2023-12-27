@@ -15,48 +15,38 @@
 (function () {
   "use strict";
 
-  // all non-empty elements' parents
-  let parents = new Set();
-  function get_parents(elem) {
+  let elements = [];
+  function get_elements(elem) {
     // skip empty elements
-    if (elem.offsetWidth || elem.offsetHeight == 0) return;
-    if (elem.offsetWidth < window.innerWidth) {
-      parents.add(elem.parentElement);
+    if ((elem.offsetWidth || elem.offsetHeight) === 0) return;
+    // skip fullscreen elements, search their children
+    if (elem.offsetLeft === 0 && elem.offsetWidth === window.innerWidth) {
+      for (const child of elem.children) get_elements(child);
       return;
     }
-    for (const child of elem.children) get_parents(child);
+    // get elements spanning center line
+    if (
+      elem.offsetLeft < window.innerWidth / 2 &&
+      elem.offsetLeft + elem.offsetWidth > window.innerWidth / 2
+    )
+      elements.push(elem);
   }
-  let body = document.getElementsByTagName("body")[0];
-  get_parents(body);
+  get_elements(document.getElementsByTagName("body")[0]);
 
-  let elements = new Set();
-  for (const parent of parents) {
-    let min_offsetLeft = window.innerWidth;
-
-    let short_element = null;
-    for (const elem of parent.children) {
-      // skip empty elements
-      if (elem.offsetWidth || elem.offsetHeight == 0) continue;
-      if (
-        elem.offsetLeft > window.innerWidth / 4 &&
-        elem.offsetWidth < (2 * window.innerWidth) / 3 &&
-        min_offsetLeft > elem.offsetLeft
-      ) {
-        min_offsetLeft = elem.offsetLeft;
-        short_element = elem;
-      }
-    }
-
-    if (short_element != null) {
-      elements.add(short_element);
-    }
-  }
-
-  for (const elem of elements) {
-    let default_left = "5rem";
-    if (elem.offsetWidth < window.innerWidth / 4) {
-      default_left = "10rem";
-    }
-    elem.style.marginLeft = default_left;
+  switch (window.location.host) {
+    // specially handle
+    case "poe.com":
+      elements[0].children[0].children[1].children[0].style.marginLeft =
+        "-40rem";
+      break;
+    default:
+      for (const elem of elements) elem.style.marginLeft = "5rem";
   }
 })();
+
+// some test websites:
+// https://www.zhihu.com/column/frozengene
+// https://www.baidu.com/
+// https://greasyfork.org/zh-CN/scripts/419081-%E7%9F%A5%E4%B9%8E%E5%A2%9E%E5%BC%BA
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
+// https://poe.com/
