@@ -27,7 +27,8 @@
     // get elements spanning center line
     if (
       elem.offsetLeft < window.innerWidth / 2 &&
-      elem.offsetLeft + elem.offsetWidth > window.innerWidth / 2
+      elem.offsetLeft + elem.offsetWidth > window.innerWidth / 2 &&
+      elem.offsetLeft + elem.offsetWidth < window.innerWidth
     )
       elements.push(elem);
   }
@@ -49,4 +50,5 @@
 // https://www.baidu.com/
 // https://greasyfork.org/zh-CN/scripts/419081-%E7%9F%A5%E4%B9%8E%E5%A2%9E%E5%BC%BA
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
+// https://nodejs.org/api/fs.html
 // https://poe.com/
